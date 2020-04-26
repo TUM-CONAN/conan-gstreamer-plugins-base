@@ -5,6 +5,7 @@ from conans import ConanFile, Meson, tools
 
 class GStreamerPluginsBaseConan(ConanFile):
     name = "gstreamer-plugins-base"
+    version = "1.16.2"
     description = "A well-groomed and well-maintained collection of GStreamer plugins and elements"
     license = "LGPL"
     settings = "os", "arch", "compiler", "build_type"
@@ -28,8 +29,8 @@ class GStreamerPluginsBaseConan(ConanFile):
     }
     default_options = (
         "introspection=True",
-        "gl=True",
-        "x11=True",
+        "gl=False",
+        "x11=False",
         "videotestsrc=True",
         "audiotestsrc=True",
         "videoconvert=True",
@@ -37,38 +38,44 @@ class GStreamerPluginsBaseConan(ConanFile):
         "playback=True",
         "typefind=True",
         "timeoverlay=True",
-        "orc=True",
-        "opus=True",
-        "pango=True",
+        "orc=False",
+        "opus=False",
+        "pango=False",
         "audioconvert=True",
         "videoscale=True",
         "audioresample=False"
     )
 
-    def set_version(self):
-        git = tools.Git(folder=self.recipe_folder)
-        tag, branch = git.get_tag(), git.get_branch()
-        self.version = tag if tag and branch.startswith("HEAD") else branch
+    generators = "pkgconf"
+
+    # def set_version(self):
+    #     git = tools.Git(folder=self.recipe_folder)
+    #     tag, branch = git.get_tag(), git.get_branch()
+    #     self.version = tag if tag and branch.startswith("HEAD") else branch
 
     def build_requirements(self):
-        self.build_requires("generators/1.0.0@%s/stable" % self.user)
-        self.build_requires("meson/[>=0.51.2]@%s/stable" % self.user)
-        self.build_requires("mesa/[>=19.2.0]@%s/stable" % self.user)
+        self.build_requires("generators/1.0.0@camposs/stable")
+        self.build_requires("meson/[>=0.51.2]@camposs/stable")
+        # needed for opengl build
+        # self.build_requires("mesa/[>=19.2.0]@camposs/stable")
         if self.options.introspection:
-            self.build_requires("gobject-introspection/[>=1.59.3]@%s/stable" % self.user)
+            self.build_requires("gobject-introspection/[>=1.59.3]@camposs/stable")
 
     def requirements(self):
         gst_version = "master" if self.version == "master" else "[~%s]" % self.version
         gst_channel = "testing" if self.version == "master" else "stable"
         self.requires("gstreamer/%s@%s/%s" % (gst_version, self.user, gst_channel))
-        if self.options.orc:
-            self.requires("orc/[>=0.4.29]@%s/stable" % self.user)
-        if self.options.opus:
-            self.requires("opus/[>=1.3.1]@%s/stable" % self.user)
-        if self.options.pango:
-            self.requires("pango/[>=1.43.0, include_prerelease=True]@%s/stable" % self.user)
-        if self.options.x11:
-            self.requires("libx11/[>=1.6.8]@%s/stable" % self.user)
+
+        # @todo: packages are not yet converted
+        # if self.options.orc:
+        #     self.requires("orc/[>=0.4.29]@camposs/stable")
+        # if self.options.opus:
+        #     self.requires("opus/[>=1.3.1]@camposs/stable")
+        # if self.options.pango:
+        #     self.requires("pango/[>=1.43.0, include_prerelease=True]@camposs/stable")
+        # needed for x11 build
+        # if self.options.x11:
+        #     self.requires("libx11/[>=1.6.8]@camposs/stable")
 
     def source(self):
         git = tools.Git(folder="gst-plugins-base-" + self.version)
