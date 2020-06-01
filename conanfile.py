@@ -47,6 +47,7 @@ class GStreamerPluginsBaseConan(ConanFile):
     )
 
     generators = "pkgconf"
+    system_pcs = ['x11', 'xproto', 'xtrans'] # Allows pkgconfig to search system paths (needed for x11/...)
 
     # def set_version(self):
     #     git = tools.Git(folder=self.recipe_folder)
@@ -65,10 +66,10 @@ class GStreamerPluginsBaseConan(ConanFile):
         gst_version = "master" if self.version == "master" else "[~%s]" % self.version
         gst_channel = "testing" if self.version == "master" else "stable"
         self.requires("gstreamer/%s@%s/%s" % (gst_version, self.user, gst_channel))
+        if self.options.orc:
+            self.requires("orc/[>=0.4.29]@camposs/stable")
 
         # @todo: packages are not yet converted
-        # if self.options.orc:
-        #     self.requires("orc/[>=0.4.29]@camposs/stable")
         # if self.options.opus:
         #     self.requires("opus/[>=1.3.1]@camposs/stable")
         # if self.options.pango:
